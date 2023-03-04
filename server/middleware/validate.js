@@ -1,5 +1,7 @@
 const joi = require("joi");
-const signupValidator = async (req, res, next) => {
+
+//=================================================================================================
+const signupValidator = (req, res, next) => {
   // signup schema for validation
   const schema = joi
     .object()
@@ -19,9 +21,35 @@ const signupValidator = async (req, res, next) => {
     password,
   });
   if (error) {
-    return res.status(400).json({ msg: error.details.map((v) => v.context) });
+    console.log(error.details);
+    return res.status(400).json({ message: error.details });
   }
   next();
 };
 
-module.exports = [signupValidator,];
+//============================================================================================
+const signinValidator = (req, res, next) => {
+  // signup schema for validation
+  const schema = joi
+    .object()
+    .keys({
+      // name: joi.string().required(),
+      email: joi.string().email({ minDomainSegments: 2 }).required(),
+      password: joi.string().min(6).max(20).required(),
+    })
+    .options({ abortEarly: false });
+
+  // get req body
+  const { email, password } = req.body;
+
+  const { error } = schema.validate({
+    email,
+    password,
+  });
+  if (error) {
+    return res.status(400).json({ message: error.details });
+  }
+  next();
+};
+
+module.exports = { signupValidator, signinValidator };

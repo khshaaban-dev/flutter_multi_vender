@@ -29,7 +29,12 @@ class CustomTextField extends StatelessWidget {
           ),
         ),
       ),
-      validator: (value) {},
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Inter Your $hint';
+        }
+        return null;
+      },
     );
   }
 }

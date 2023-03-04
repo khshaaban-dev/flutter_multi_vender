@@ -1,4 +1,5 @@
 import 'package:amazon_clone/constants/global_variables.dart';
+import 'package:amazon_clone/features/auth/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amazon_clone/common/widgets/custom_button.dart';
@@ -21,8 +22,11 @@ class _AuthScreenState extends State<AuthScreen> {
   // radio enum
   AuthEnum _auth = AuthEnum.signup;
   // signup and signIn global keys
-  final signupGlobalKey = GlobalKey<FormState>();
-  final signInGlobalKey = GlobalKey<FormState>();
+  final _signupGlobalKey = GlobalKey<FormState>();
+  final _signInGlobalKey = GlobalKey<FormState>();
+
+  // auth service
+  final AuthService _authService = AuthService();
 
   //text field controllers
   final TextEditingController _nameController = TextEditingController();
@@ -37,6 +41,18 @@ class _AuthScreenState extends State<AuthScreen> {
     _passwordController.dispose();
     super.dispose();
   }
+
+  void signup() => _authService.signup(
+        context: context,
+        name: _nameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+  void signin() => _authService.signin(
+        context: context,
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +101,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   padding: EdgeInsets.all(12.r),
                   color: GlobalVariables.backgroundColor,
                   child: Form(
-                    key: signupGlobalKey,
+                    key: _signupGlobalKey,
                     child: Column(
                       children: [
                         //name field
@@ -108,7 +124,11 @@ class _AuthScreenState extends State<AuthScreen> {
                         SizedBox(height: 12.h),
                         CustomButton(
                           text: 'SingUp',
-                          onPressed: () {},
+                          onPressed: () {
+                            if (_signupGlobalKey.currentState!.validate()) {
+                              signup();
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -144,7 +164,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   padding: EdgeInsets.all(12.r),
                   color: GlobalVariables.backgroundColor,
                   child: Form(
-                    key: signInGlobalKey,
+                    key: _signInGlobalKey,
                     child: Column(
                       children: [
                         // email field
@@ -163,7 +183,11 @@ class _AuthScreenState extends State<AuthScreen> {
                         SizedBox(height: 12.h),
                         CustomButton(
                           text: 'SignIn',
-                          onPressed: () {},
+                          onPressed: () {
+                            if (_signInGlobalKey.currentState!.validate()) {
+                              signin();
+                            }
+                          },
                         ),
                       ],
                     ),
