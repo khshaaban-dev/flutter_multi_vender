@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
   final String signupUrl = "/api/signup";
   final String signinUrl = "/api/signin";
+  final String tokenIsValid = "/api/tokenIsValid";
 
   // signup
   void signup({
@@ -36,9 +37,7 @@ class AuthService {
       final http.Response response = await http.post(
         Uri.parse(baseUrl + signupUrl),
         body: user.toJson(),
-        headers: <String, String>{
-          "Content-Type": "application/json; charset=UTF-8"
-        },
+        headers: <String, String>{...GlobalVariables.contentTypeJson},
       );
 
       if (context.mounted) {
@@ -75,9 +74,7 @@ class AuthService {
       final http.Response response = await http.post(
         Uri.parse(baseUrl + signinUrl),
         body: user.toJson(),
-        headers: <String, String>{
-          "Content-Type": "application/json; charset=UTF-8"
-        },
+        headers: <String, String>{...GlobalVariables.contentTypeJson},
       );
 
       if (context.mounted) {
@@ -86,9 +83,6 @@ class AuthService {
           context: context,
           onSuccess: () async {
             // add token to shared preferences
-            final sf = await SharedPreferences.getInstance();
-            await sf.setString(
-                GlobalVariables.xAuthToken, jsonDecode(response.body)['token']);
             if (context.mounted) {
               // change user Provider
               Provider.of<UserProvider>(context, listen: false)
@@ -99,6 +93,47 @@ class AuthService {
             }
           },
         );
+      }
+    } on Exception catch (e) {
+      showSnackBar(context: context, message: e.toString());
+    }
+  }
+
+// check if token is valid or not
+  void getUserData(BuildContext context) async {
+    try {
+      final SharedPreferences ref = await SharedPreferences.getInstance();
+
+      String? token = ref.getString(GlobalVariables.xAuthToken);
+      if (token == null) {
+        await ref.setString(GlobalVariables.xAuthToken, '');
+      }
+
+      // check is token valid
+      var tokenRes = await http.post(
+        Uri.parse('$baseUrl$tokenIsValid'),
+        headers: <String, String>{
+          GlobalVariables.xAuthToken: token!,
+          ...GlobalVariables.contentTypeJson,
+        },
+      );
+
+      final result = jsonDecode(tokenRes.body);
+      // token is valid
+      if (result == true) {
+        // get user data
+        final userData = await http.get(
+          Uri.parse('$baseUrl/'),
+          headers: <String, String>{
+            GlobalVariables.xAuthToken: token,
+            ...GlobalVariables.contentTypeJson,
+          },
+        );
+        if (context.mounted) {
+          Provider.of<UserProvider>(context, listen: false).setUser(
+            userData.body,
+          );
+        }
       }
     } on Exception catch (e) {
       showSnackBar(context: context, message: e.toString());

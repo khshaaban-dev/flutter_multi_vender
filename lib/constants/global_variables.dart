@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class GlobalVariables {
-
-  // access token 
+  // access token
   static const xAuthToken = 'x-auth-token';
+  static const contentTypeJson = {
+    'Content-Type': 'application/json; charset=UTF-8'
+  };
+
   // COLORS
   static const appBarGradient = LinearGradient(
     colors: [

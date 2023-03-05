@@ -45,8 +45,8 @@ app.*.map.json
 
 #nodejs env
 /server/.env
-/server\node_modules
+/server/node_modules
 
                       
 #file store ip for my android emulator
-/lib\constants\baseurl.dart
+/lib/constants/baseurl.dart

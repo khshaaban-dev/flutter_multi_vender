@@ -17,4 +17,8 @@ class UserProvider extends ChangeNotifier {
     _user = User.fromJson(stringUser);
     notifyListeners();
   }
+
+
+
+  
 }
